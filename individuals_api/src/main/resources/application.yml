@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: individuals_api
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9090/realms/master
+
+keycloak:
+  auth-server-url: http://localhost:9090
+  realm: master
+  create_client-id: admin-cli
+  create_client-secret: Wbxjl9dLhU27D6Z1mU1HgL8IsCSWIpTZ
+  auth_client-id: account
+  auth_client-secret: cWs3zmLCF9JxVqaUFBgkQHqFAipcjWCE
+  admin:
+    username: admin
+    password: admin
+
+server:
+  port: 8091
