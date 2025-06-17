@@ -5,18 +5,16 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:9090/realms/master
+          issuer-uri: http://localhost:9090/realms/my-app-realm
 
 keycloak:
   auth-server-url: http://localhost:9090
-  realm: master
-  create_client-id: admin-cli
-  create_client-secret: Wbxjl9dLhU27D6Z1mU1HgL8IsCSWIpTZ
-  auth_client-id: account
-  auth_client-secret: cWs3zmLCF9JxVqaUFBgkQHqFAipcjWCE
+  realm: my-app-realm
+  client-id: my-app-client
+  client-secret: pYeKYYS6Yp1YziNjgDjQPHgtu7RbwPog
   admin:
-    username: admin
-    password: admin
+    username: my_user_manager
+    password: my_user_manager_password
 
 server:
   port: 8091

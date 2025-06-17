@@ -32,17 +32,11 @@ public class KeycloakService {
     @Value("${keycloak.realm}")
     private String realm;
 
-    @Value("${keycloak.auth_client-id}")
-    private String authClientId;
+    @Value("${keycloak.client-id}")
+    private String clientId;
 
-    @Value("${keycloak.auth_client-secret}")
-    private String authClientSecret;
-
-    @Value("${keycloak.create_client-id}")
-    private String createClientId;
-
-    @Value("${keycloak.create_client-secret}")
-    private String createClientSecret;
+    @Value("${keycloak.client-secret}")
+    private String clientSecret;
 
     @Value("${keycloak.admin.username}")
     private String adminUsername;
@@ -59,8 +53,8 @@ public class KeycloakService {
         try (var keycloakAdmin = KeycloakBuilder.builder()
                 .serverUrl(authServerUrl)
                 .realm(realm)
-                .clientId(createClientId)
-                .clientSecret(createClientSecret)
+                .clientId(clientId)
+                .clientSecret(clientSecret)
                 .username(adminUsername)
                 .password(adminPassword)
                 .build()) {
@@ -95,8 +89,8 @@ public class KeycloakService {
         try (var keycloak = KeycloakBuilder.builder()
                 .serverUrl(authServerUrl)
                 .realm(realm)
-                .clientId(authClientId)
-                .clientSecret(authClientSecret)
+                .clientId(clientId)
+                .clientSecret(clientSecret)
                 .username(username)
                 .password(password)
                 .build()) {
@@ -116,8 +110,8 @@ public class KeycloakService {
         try (var client = ClientBuilder.newClient()) {
             var form = new Form()
                     .param(OAuth2Constants.GRANT_TYPE, OAuth2Constants.REFRESH_TOKEN)
-                    .param(OAuth2Constants.CLIENT_ID, authClientId)
-                    .param(OAuth2Constants.CLIENT_SECRET, authClientSecret)
+                    .param(OAuth2Constants.CLIENT_ID, clientId)
+                    .param(OAuth2Constants.CLIENT_SECRET, clientSecret)
                     .param(OAuth2Constants.REFRESH_TOKEN, refreshToken);
             var tokenResponse = client.target(authServerUrl + "/realms/" + realm + "/protocol/openid-connect/token")
                     .request()

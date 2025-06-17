@@ -16,8 +16,8 @@ public class SecurityConfig {
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/v1/auth/**").permitAll()
                         .pathMatchers("/v1/auth/me").authenticated()
+                        .pathMatchers("/v1/auth/**").permitAll()
                         .pathMatchers("/actuator/**").permitAll()
                         .anyExchange().authenticated()
                 )
