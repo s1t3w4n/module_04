@@ -63,6 +63,7 @@ public class KeycloakService {
             user.setEnabled(true);
             user.setUsername(request.email());
             user.setEmail(request.email());
+            user.setEmailVerified(true);
 
             var credential = new CredentialRepresentation();
             credential.setType(CredentialRepresentation.PASSWORD);

@@ -1,0 +1,3 @@
+keycloak:
+  auth-server-url: http://localhost:${KEYCLOAK_PORT}
+  realm: my-app-realm
