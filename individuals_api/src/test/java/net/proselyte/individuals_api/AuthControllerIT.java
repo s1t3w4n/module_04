@@ -105,9 +105,12 @@ public class AuthControllerIT extends KeycloakTestBase {
                 }
                 """)
                 .exchange()
-                .returnResult(Void.class)
-                .getResponseHeaders()
-                .getFirst("Authorization");
+                .returnResult(AuthResponse.class)
+                .getResponseBody()
+                .map(AuthResponse::accessToken)
+                .blockFirst();
+
+        System.out.println(token);
 
         webTestClient.get().uri("/v1/auth/me")
                 .header("Authorization", "Bearer " + token)
