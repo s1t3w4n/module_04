@@ -124,7 +124,7 @@ public class KeycloakService {
                     tokenResponse.getRefreshToken(),
                     tokenResponse.getTokenType()
             );
-        } catch (NotAuthorizedException ex) {
+        } catch (Exception ex) {
             throw new AuthException("Invalid or expired refresh token", HttpStatus.UNAUTHORIZED);
         }
     }
