@@ -12,6 +12,8 @@ import net.proselyte.individuals_api.request.RegistrationRequest;
 import net.proselyte.individuals_api.response.UserInfoResponse;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.KeycloakBuilder;
+import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -133,10 +135,21 @@ public class KeycloakService {
         String userId = jwt.getSubject();
         String email = jwt.getClaim("email");
 
-        if (Objects.isNull(userId) || Objects.isNull(email)) {
-            throw new AuthException("User not found", HttpStatus.NOT_FOUND);
+        try (var keycloak = KeycloakBuilder.builder()
+                .serverUrl(authServerUrl)
+                .realm(realm)
+                .clientId(clientId)
+                .clientSecret(clientSecret)
+                .username(adminUsername)
+                .password(adminPassword)
+                .build()) {
+            RealmResource realmResource = keycloak.realm(realm);
+            UserResource userResource = realmResource.users().get(userId);
+            UserRepresentation user = userResource.toRepresentation();
+            if (Objects.isNull(user)) {
+                throw new AuthException("User not found", HttpStatus.NOT_FOUND);
+            }
         }
-
         return new UserInfoResponse(
                 userId,
                 email,
