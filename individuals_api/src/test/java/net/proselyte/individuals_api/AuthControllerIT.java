@@ -215,44 +215,44 @@ public class AuthControllerIT extends KeycloakTestBase {
                 .expectBody()
                 .jsonPath("$.email").isEqualTo("testuser@example.com");
     }
-//
-//    @Test
-//    @DisplayName("Should return 401 when no token provided")
-//    void getCurrentUser_NoToken_ShouldReturnUnauthorized() {
-//        webTestClient.get().uri("/v1/auth/me")
-//                .accept(MediaType.APPLICATION_JSON)
-//                .exchange()
-//                .expectStatus().isUnauthorized()
-//                .expectBody()
-//                .jsonPath("$.error").isEqualTo("Invalid or expired access token")
-//                .jsonPath("$.status").isEqualTo(401);
-//    }
-//
-//    @Test
-//    @DisplayName("Should return 401 when invalid token provided")
-//    void getCurrentUser_InvalidToken_ShouldReturnUnauthorized() {
-//        webTestClient.get().uri("/v1/auth/me")
-//                .header("Authorization", "Bearer invalid.token.here")
-//                .accept(MediaType.APPLICATION_JSON)
-//                .exchange()
-//                .expectStatus().isUnauthorized()
-//                .expectBody()
-//                .jsonPath("$.error").isEqualTo("Invalid or expired access token")
-//                .jsonPath("$.status").isEqualTo(401);
-//    }
-//
-//    @Test
-//    @DisplayName("Should return 401 when expired token provided")
-//    void getCurrentUser_ExpiredToken_ShouldReturnUnauthorized() {
-//        String expiredToken = "your.expired.token.here";
-//
-//        webTestClient.get().uri("/v1/auth/me")
-//                .header("Authorization", "Bearer " + expiredToken)
-//                .accept(MediaType.APPLICATION_JSON)
-//                .exchange()
-//                .expectStatus().isUnauthorized()
-//                .expectBody()
-//                .jsonPath("$.error").isEqualTo("Invalid or expired access token")
-//                .jsonPath("$.status").isEqualTo(401);
-//    }
+
+    @Test
+    @DisplayName("Should return 401 when no token provided")
+    void getCurrentUser_NoToken_ShouldReturnUnauthorized() {
+        webTestClient.get().uri("/v1/auth/me")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isUnauthorized()
+                .expectBody()
+                .jsonPath("$.error").isEqualTo("Invalid or expired access token")
+                .jsonPath("$.status").isEqualTo(401);
+    }
+
+    @Test
+    @DisplayName("Should return 401 when invalid token provided")
+    void getCurrentUser_InvalidToken_ShouldReturnUnauthorized() {
+        webTestClient.get().uri("/v1/auth/me")
+                .header("Authorization", "Bearer invalid.token.here")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isUnauthorized()
+                .expectBody()
+                .jsonPath("$.error").isEqualTo("Invalid or expired access token")
+                .jsonPath("$.status").isEqualTo(401);
+    }
+
+    @Test
+    @DisplayName("Should return 401 when expired token provided")
+    void getCurrentUser_ExpiredToken_ShouldReturnUnauthorized() {
+        String expiredToken = "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI0WExkTTl0UzZwbHZ4MUtpd2hFUHZjQ0lscmFVSHlpOUY0ZjJTOTJnVTNBIn0.eyJleHAiOjE3NTAxODIxNTMsImlhdCI6MTc1MDE4MTg1MywianRpIjoib25ydHJ0OmRiNjhlZjExLWI2ODUtNGU3Yy1iZDJmLWZlYmM5YjJhYTczOCIsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6OTA5MC9yZWFsbXMvbXktYXBwLXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6IjA3NzQ0OGFkLTlkMjMtNDdiOC1iOGUxLTA5YjhlNDVlM2QwMSIsInR5cCI6IkJlYXJlciIsImF6cCI6Im15LWFwcC1jbGllbnQiLCJzaWQiOiIzYTM0NWI3OC0wZWMwLTQ1ZmUtYjE1ZS03YWI2ODU3OWUxY2QiLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbIi8qIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJkZWZhdWx0LXJvbGVzLW15LWFwcC1yZWFsbSIsIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6InByb2ZpbGUgZW1haWwiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsInJvbGVzIjpbIlJPTEVfbWFuYWdlLWFjY291bnQiLCJST0xFX3ZpZXctcHJvZmlsZSIsIlJPTEVfbWFuYWdlLWFjY291bnQtbGlua3MiXSwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlckBleGFtcGxlLmNvbSIsImVtYWlsIjoidXNlckBleGFtcGxlLmNvbSJ9.c9dWiUZ1cb8kA4SmaAFCY4FmDnBrhC7cT7I5yTaHlOko4tCoRkCfdyNsekF139VYel9As2IeegzYbdPvTVMusuUpjgj55IV8kFNXVl-oNovfp4E4KJO43CetUjNIs5kuP_tP3KIR9LpZPn-l6E-4Bq1MktQAp2yWjNJArEdWXLT37YTZ9PoYWi-Z6-IKyfR4FbcaqLooLevVZMbn71JNjCCRYMJKGbf6gcqFdEiSo46kj8nw_fsEMbud-SgKLVBluszqGpJC63OImM8GmOogTpUF_BOOLN8P0gig-lnR4DryHme64eU2Yfxi382y7lHgEp51kNL5F9ajSLhn0woPTA";
+
+        webTestClient.get().uri("/v1/auth/me")
+                .header("Authorization", "Bearer " + expiredToken)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isUnauthorized()
+                .expectBody()
+                .jsonPath("$.error").isEqualTo("Invalid or expired access token")
+                .jsonPath("$.status").isEqualTo(401);
+    }
 }

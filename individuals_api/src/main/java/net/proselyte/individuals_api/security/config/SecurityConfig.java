@@ -12,6 +12,8 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 @EnableReactiveMethodSecurity
 public class SecurityConfig {
 
+    private final CustomBearerTokenServerAuthenticationEntryPoint authenticationEntryPoint
+            = new CustomBearerTokenServerAuthenticationEntryPoint();
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
@@ -29,6 +31,7 @@ public class SecurityConfig {
                                         )
                                 )
                         )
+                        .authenticationEntryPoint(authenticationEntryPoint)
                 )
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .build();
