@@ -12,14 +12,14 @@ import reactor.core.publisher.Mono;
 @ControllerAdvice
 public class GlobalErrorHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler
-    public Mono<ResponseEntity<?>> handleBusinessException(AuthException ex) {
+    public Mono<ResponseEntity<ErrorResponse>> handleBusinessException(AuthException ex) {
         return Mono.just(ResponseEntity
                 .status(ex.getStatus())
                 .body(new ErrorResponse(ex.getMessage(), ex.getStatus().value())));
     }
 
     @ExceptionHandler
-    public Mono<ResponseEntity<?>> handleAllExceptions(Exception ex) {
+    public Mono<ResponseEntity<ErrorResponse>> handleAllExceptions(Exception ex) {
         return Mono.just(ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponse("Unexpected server error: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value())));
