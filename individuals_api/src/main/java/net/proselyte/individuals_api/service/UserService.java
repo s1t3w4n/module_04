@@ -59,7 +59,7 @@ public class UserService {
                         .password(adminPassword)
                         .build(),
                 keycloakAdmin -> Mono.fromCallable(() -> {
-                    UserRepresentation user = getUserRepresentation(request);
+                    var user = getUserRepresentation(request);
                     try (Response response = keycloakAdmin.realm(realm).users().create(user)) {
                         if (response.getStatus() == HttpStatus.CONFLICT.value()) {
                             throw new AuthException("User with this email already exists", HttpStatus.CONFLICT);
@@ -75,13 +75,13 @@ public class UserService {
     }
 
     private static UserRepresentation getUserRepresentation(RegistrationRequest request) {
-        UserRepresentation user = new UserRepresentation();
+        var user = new UserRepresentation();
         user.setEnabled(true);
         user.setUsername(request.email());
         user.setEmail(request.email());
         user.setEmailVerified(true);
 
-        CredentialRepresentation credential = new CredentialRepresentation();
+        var credential = new CredentialRepresentation();
         credential.setType(CredentialRepresentation.PASSWORD);
         credential.setValue(request.password());
         credential.setTemporary(false);
@@ -113,9 +113,9 @@ public class UserService {
     }
 
     public Mono<UserInfoResponse> getUserInfo(Jwt jwt) {
-        String userId = jwt.getSubject();
+        var userId = jwt.getSubject();
         String email = jwt.getClaim("email");
-        List<String> roles = extractRoles(jwt);
+        var roles = extractRoles(jwt);
         Instant iat = jwt.getClaim("iat");
         return Mono.using(
                 () -> KeycloakBuilder.builder()
@@ -127,7 +127,7 @@ public class UserService {
                         .password(adminPassword)
                         .build(),
                 keycloak -> Mono.fromCallable(() -> {
-                    UserRepresentation user = keycloak.realm(realm)
+                    var user = keycloak.realm(realm)
                             .users()
                             .get(userId)
                             .toRepresentation();
@@ -144,7 +144,7 @@ public class UserService {
     }
 
     private List<String> extractRoles(Jwt jwt) {
-        List<String> roles = jwt.getClaimAsStringList("roles");
+        var roles = jwt.getClaimAsStringList("roles");
         if (Objects.isNull(roles)) {
             return Collections.emptyList();
         }
