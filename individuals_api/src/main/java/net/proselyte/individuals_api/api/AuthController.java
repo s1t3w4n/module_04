@@ -7,7 +7,8 @@ import net.proselyte.individuals_api.response.AuthResponse;
 import net.proselyte.individuals_api.request.RegistrationRequest;
 import net.proselyte.individuals_api.request.LoginRequest;
 import net.proselyte.individuals_api.response.UserInfoResponse;
-import net.proselyte.individuals_api.service.KeycloakService;
+import net.proselyte.individuals_api.service.TokenService;
+import net.proselyte.individuals_api.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,26 +21,27 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final KeycloakService keycloakService;
+    private final UserService userService;
+    private final TokenService tokenService;
 
     @PostMapping("/registration")
     public Mono<ResponseEntity<AuthResponse>> registerUser(@Valid @RequestBody RegistrationRequest request) {
-        return Mono.just(request).flatMap(req -> keycloakService.registerUser(req)
+        return Mono.just(request).flatMap(req -> userService.registerUser(req)
                 .map(authResponse -> ResponseEntity.status(HttpStatus.CREATED).body(authResponse)));
     }
 
     @PostMapping("/login")
     public Mono<AuthResponse> loginUser(@Valid @RequestBody Mono<LoginRequest> requestMono) {
-        return requestMono.flatMap(request -> keycloakService.loginUser(request.email(), request.password()));
+        return requestMono.flatMap(request -> userService.loginUser(request.email(), request.password()));
     }
 
     @PostMapping("/refresh-token")
     public Mono<AuthResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
-        return keycloakService.refreshToken(request.refreshToken());
+        return tokenService.refreshToken(request.refreshToken());
     }
 
     @GetMapping("/me")
     public Mono<UserInfoResponse> getUserInfo(@AuthenticationPrincipal Jwt jwt) {
-        return keycloakService.getUserInfo(jwt);
+        return userService.getUserInfo(jwt);
     }
 }
