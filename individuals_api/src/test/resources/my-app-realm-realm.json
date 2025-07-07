@@ -47,6 +47,14 @@
   "failureFactor" : 30,
   "roles" : {
     "realm" : [ {
+      "id" : "b405d4cb-36c1-4f5d-97ad-3d9c4eeec1a3",
+      "name" : "user",
+      "description" : "",
+      "composite" : false,
+      "clientRole" : false,
+      "containerId" : "80265752-763d-49ee-a1e2-e9ea7f3af4c2",
+      "attributes" : { }
+    }, {
       "id" : "e68fd743-6da8-479e-afc9-675fe8d3762e",
       "name" : "offline_access",
       "description" : "${role_offline-access}",
@@ -425,6 +433,26 @@
     "clientRoles" : {
       "realm-management" : [ "manage-users" ]
     },
+    "notBefore" : 0,
+    "groups" : [ ]
+  }, {
+    "id" : "bf2e2814-6283-4e90-b7f4-447380a1288d",
+    "username" : "user1@example.com",
+    "email" : "user1@example.com",
+    "emailVerified" : true,
+    "createdTimestamp" : 1751612933211,
+    "enabled" : true,
+    "totp" : false,
+    "credentials" : [ {
+      "id" : "70d0785e-75a0-41b9-a76a-ea927e7fbba5",
+      "type" : "password",
+      "createdDate" : 1751612933265,
+      "secretData" : "{\"value\":\"6yprqJ1vzqv/YutMwmsgGoCQQXUMPREo4Jz4tWXzTnQ=\",\"salt\":\"Pow9o311IJE/dpKJv94iCg==\",\"additionalParameters\":{}}",
+      "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "user", "default-roles-my-app-realm" ],
     "notBefore" : 0,
     "groups" : [ ]
   } ],
