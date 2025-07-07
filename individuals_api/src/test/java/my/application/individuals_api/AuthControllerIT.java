@@ -1,5 +1,6 @@
 package my.application.individuals_api;
 
+import com.jayway.jsonpath.JsonPath;
 import my.application.individuals_api.response.AuthResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,7 +11,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
+
 import static my.application.individuals_api.utils.Messages.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -22,20 +27,33 @@ public class AuthControllerIT extends KeycloakTestBase {
     @Test
     @DisplayName("Successful login should return valid access and refresh tokens")
     void login_ShouldReturnTokens() {
-        webTestClient.post().uri("/v1/auth/login")
+        byte[] responseBody = webTestClient.post().uri("/v1/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue("""
-                        {
-                            "email": "user1@example.com",
-                            "password": "SecurePassword123"
-                        }
-                        """)
+                    {
+                        "email": "user1@example.com",
+                        "password": "SecurePassword123"
+                    }
+                    """)
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
                 .expectBody()
                 .jsonPath("$.access_token").isNotEmpty()
-                .jsonPath("$.refresh_token").isNotEmpty();
+                .jsonPath("$.refresh_token").isNotEmpty()
+                .returnResult()
+                .getResponseBody();
+
+        String responseString = new String(Objects.requireNonNull(responseBody), StandardCharsets.UTF_8);
+        String accessToken = JsonPath.parse(responseString).read("$.access_token");
+
+        webTestClient.get().uri("/v1/auth/me")
+                .header("Authorization", "Bearer " + accessToken)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.email").isEqualTo("user1@example.com");
     }
 
     @Test
@@ -77,20 +95,38 @@ public class AuthControllerIT extends KeycloakTestBase {
     @Test
     @DisplayName("User registration should create new user and return auth tokens")
     void registration_ShouldCreateUser() {
-        webTestClient.post().uri("/v1/auth/registration")
+        String uniqueEmail = "testuser@example.com";
+        String password = "testpassword";
+
+        byte[] responseBody = webTestClient.post().uri("/v1/auth/registration")
                 .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.ALL)
-                .bodyValue("""
-                        {
-                            "email": "testuser@example.com",
-                            "password": "testpassword",
-                            "confirm_password": "testpassword"
-                        }
-                        """)
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(String.format("""
+                    {
+                        "email": "%s",
+                        "password": "%s",
+                        "confirm_password": "%s"
+                    }
+                    """, uniqueEmail, password, password))
                 .exchange()
                 .expectStatus().isCreated()
                 .expectBody()
-                .jsonPath("$.token_type").isEqualTo("Bearer");
+                .jsonPath("$.token_type").isEqualTo("Bearer")
+                .jsonPath("$.access_token").exists()
+                .returnResult()
+                .getResponseBody();
+
+        String responseString = new String(Objects.requireNonNull(responseBody), StandardCharsets.UTF_8);
+        String accessToken = JsonPath.parse(responseString).read("$.access_token");
+
+        webTestClient.get().uri("/v1/auth/me")
+                .header("Authorization", "Bearer " + accessToken)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.email").isEqualTo(uniqueEmail)
+                .jsonPath("$.id").exists();
     }
 
     @Test
@@ -129,7 +165,6 @@ public class AuthControllerIT extends KeycloakTestBase {
                 .exchange()
                 .expectStatus().isCreated();
 
-        // 2. Пытаемся зарегистрировать того же пользователя снова
         webTestClient.post().uri("/v1/auth/registration")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(String.format("""
@@ -149,14 +184,14 @@ public class AuthControllerIT extends KeycloakTestBase {
     @Test
     @DisplayName("Refresh token endpoint should return new tokens when valid refresh token provided")
     void refreshToken_ShouldReturnNewTokens_WhenValidRefreshToken() {
-        String refreshToken = webTestClient.post().uri("/v1/auth/login")
+        String initialRefreshToken = webTestClient.post().uri("/v1/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue("""
-                        {
-                            "email": "testuser@example.com",
-                            "password": "testpassword"
-                        }
-                        """)
+                    {
+                        "email": "testuser@example.com",
+                        "password": "testpassword"
+                    }
+                    """)
                 .exchange()
                 .expectStatus().isOk()
                 .returnResult(AuthResponse.class)
@@ -164,21 +199,37 @@ public class AuthControllerIT extends KeycloakTestBase {
                 .map(AuthResponse::refreshToken)
                 .blockFirst();
 
-        webTestClient.post().uri("/v1/auth/refresh-token")
+        assertNotNull(initialRefreshToken, "Refresh token должен быть получен при логине");
+
+        AuthResponse refreshedTokens = webTestClient.post().uri("/v1/auth/refresh-token")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue("""
-                        {
-                            "refresh_token": "%s"
-                        }
-                        """.formatted(refreshToken))
+                    {
+                        "refresh_token": "%s"
+                    }
+                    """.formatted(initialRefreshToken))
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .returnResult(AuthResponse.class)
+                .getResponseBody()
+                .blockFirst();
+
+        assertNotNull(refreshedTokens, "Ответ от refresh-token не должен быть null");
+        assertNotNull(refreshedTokens.accessToken(), "Новый access token должен быть в ответе");
+        assertNotNull(refreshedTokens.refreshToken(), "Новый refresh token должен быть в ответе");
+
+        webTestClient.get().uri("/v1/auth/me")
+                .header("Authorization", "Bearer " + refreshedTokens.accessToken())
+                .exchange()
+                .expectStatus().isOk()
                 .expectBody()
-                .jsonPath("$.access_token").isNotEmpty()
-                .jsonPath("$.refresh_token").isNotEmpty()
-                .jsonPath("$.token_type").isEqualTo("Bearer")
-                .jsonPath("$.expires_in").isNumber();
+                .jsonPath("$.email").isEqualTo("testuser@example.com");
+
+        webTestClient.get().uri("/v1/auth/me")
+                .header("Authorization", "Bearer " + initialRefreshToken) // используем старый refresh как access (должен вернуть 401)
+                .exchange()
+                .expectStatus().isUnauthorized();
     }
 
     @Test
