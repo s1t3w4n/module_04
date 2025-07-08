@@ -175,7 +175,7 @@ public class AuthControllerIT extends KeycloakTestBase {
                         }
                         """, existingEmail))
                 .exchange()
-                .expectStatus().isEqualTo(HttpStatus.CONFLICT)  // Исправлено здесь
+                .expectStatus().isEqualTo(HttpStatus.CONFLICT)
                 .expectBody()
                 .jsonPath("$.error").isEqualTo(USER_ALREADY_EXISTS)
                 .jsonPath("$.status").isEqualTo(409);
@@ -227,7 +227,7 @@ public class AuthControllerIT extends KeycloakTestBase {
                 .jsonPath("$.email").isEqualTo("testuser@example.com");
 
         webTestClient.get().uri("/v1/auth/me")
-                .header("Authorization", "Bearer " + initialRefreshToken) // используем старый refresh как access (должен вернуть 401)
+                .header("Authorization", "Bearer " + initialRefreshToken)
                 .exchange()
                 .expectStatus().isUnauthorized();
     }
